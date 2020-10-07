@@ -123,7 +123,24 @@ public:
             return find->second;
         }
 
-        return Line(std::string());
+        return Line();
+    }
+
+    Line GetLine(const std::unordered_map<std::string, std::string> &keys) {
+        for (auto iter = context_.begin(); iter != context_.end(); iter++) {
+            auto line = std::move(iter->second);
+            size_t count = 0;
+            for (auto it = keys.begin(); it != keys.end(); it++) {
+                if (line[header_[it->first]] != it->second) {
+                    break;
+                }
+                count++;
+            }
+            if (count == keys.size()) {
+                return line;
+            }
+        }
+        return Line();
     }
 
     int GetColumn() const {
