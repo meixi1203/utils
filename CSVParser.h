@@ -2,8 +2,8 @@
 // Created by zhoupenghui on 2020/10/7.
 //
 
-#ifndef TEST_CSVPARSER_H
-#define TEST_CSVPARSER_H
+#ifndef CSVPARSER_H
+#define CSVPARSER_H
 
 #include <iostream>
 #include <vector>
@@ -154,4 +154,4 @@ private:
     std::unordered_map<int, std::string> index_;
 };
 
-#endif //TEST_CSVPARSER_H
+#endif //CSVPARSER_H
