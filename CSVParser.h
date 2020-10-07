@@ -57,7 +57,27 @@ struct Line
 
     int fields() const { return array_.size(); }
 
-    std::vector<std::string> getArray() const { return array_; }
+    std::vector<std::string> GetArray() const { return array_; }
+
+    std::unordered_map<std::string, std::string> GetKeyValue(std::unordered_map<int, std::string> &&header) {
+        std::unordered_map<std::string, std::string> result;
+        if (header.size() != array_.size()) {
+            return result;
+        }
+
+        for (size_t index = 0; index < array_.size(); index++) {
+            result[header[index]] = array_[index];
+        }
+        return result;
+    }
+
+    void print(const std::unordered_map<std::string, std::string> &data) {
+        std::stringstream ss;
+        for (auto iter = data.begin(); iter != data.end(); iter++) {
+            ss << iter->first << ":" << iter->second << " ";
+        }
+        std::cout << ss.str() << std::endl;
+    }
 
     std::vector<std::string> array_;
 };
@@ -65,16 +85,16 @@ struct Line
 class CSVParse
 {
 public:
-    CSVParse(const std::string &file, int key = 0) {
+    CSVParse(const std::string &file, const std::string &key) {
         if (!parse(file, key)) {
             std::cout << "parse error!" << std::endl;
         }
     }
 
-    ~CSVParse() {}
+    ~CSVParse() = default;
 
-    bool parse(const std::string &file, int key = 0) {
-        if (file.empty() || key < 0) {
+    bool parse(const std::string &file, const std::string &key) {
+        if (file.empty() || key.empty()) {
             std::cout << "parse args is error!" << std::endl;
             return false;
         }
@@ -87,17 +107,15 @@ public:
 
         std::string s("");
         getline(io, s);
-        auto array = std::move(utils::split(s));
-        for (size_t index = 0; index < array.size(); index++) {
-            header_[array[index]] = index;
-        }
+        ParseHeader(s);
 
-        int index = 0;
+        size_t count = 0;
         while (getline(io, s)) {
             Line line(s);
-            auto array = std::move(line.getArray());
-            context_[array[key]] = line;
-            index_[index++] = array[key];
+            auto array = std::move(line.GetArray());
+            auto index = header2index_[key];
+            context_[array[index]] = line;
+            index_[count++] = array[index];
         }
         io.close();
         return true;
@@ -131,7 +149,7 @@ public:
             auto line = std::move(iter->second);
             size_t count = 0;
             for (auto it = keys.begin(); it != keys.end(); it++) {
-                if (line[header_[it->first]] != it->second) {
+                if (line[header2index_[it->first]] != it->second) {
                     break;
                 }
                 count++;
@@ -144,7 +162,7 @@ public:
     }
 
     int GetColumn() const {
-        return header_.size();
+        return header2index_.size();
     }
 
     int GetRow() const {
@@ -160,13 +178,32 @@ public:
         auto find = context_.find(key);
         if (find != context_.end()) {
             auto line = find->second;
-            return find->second[header_[field]];
+            return find->second[header2index_[field]];
         }
         return std::string();
     }
 
+    std::unordered_map<int, std::string> GetHeader() const {
+        return index2header_;
+    }
+
 private:
-    std::unordered_map<std::string, int> header_;
+    bool ParseHeader(const std::string &header) {
+        if (header.empty()) {
+            return false;
+        }
+
+        auto array = std::move(utils::split(header));
+        for (size_t index = 0; index < array.size(); index++) {
+            header2index_[array[index]] = index;
+            index2header_[index] = array[index];
+        }
+        return true;
+    }
+
+    std::unordered_map<std::string, int> header2index_;
+    std::unordered_map<int, std::string> index2header_;
+
     std::unordered_map<std::string, Line> context_;
     std::unordered_map<int, std::string> index_;
 };
