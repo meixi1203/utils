@@ -12,12 +12,61 @@
 #include <unordered_map>
 
 namespace utils {
+    const std::string sep = " \n\t\v\f\r";
+    std::string ltrim(const std::string& str) {
+        if (str.empty() || !std::isspace(str.front())) {
+            return str;
+        }
+        auto start = str.find_first_not_of(sep);
+        return str.substr(start);
+    }
+
+    std::string rtrim(const std::string& str) {
+        if (str.empty() || !std::isspace(str.back())) {
+            return str;
+        }
+        auto end = str.find_last_not_of(sep);
+        return str.substr(0, end + 1);
+    }
+
+    std::string trim(const std::string& str) {
+        if (str.empty() ||
+            (!std::isspace(str.front()) && !std::isspace(str.back()))) {
+            return str;
+        }
+        auto start = str.find_first_not_of(sep);
+        auto end = str.find_last_not_of(sep);
+        return str.substr(start, end - start + 1);
+    }
+
+    std::string::size_type sep_size(const std::string& s) {
+        return s.size();
+    }
+
+    std::string::size_type sep_size(const char& c) {
+        return 1;
+    }
+
+    template <typename Sep>
+    std::vector<std::string> split_impl(const std::string& str, const Sep& sep) {
+        std::vector<std::string> result;
+        std::string::size_type last(0);
+        auto index = str.find(sep, last);
+        while (index != std::string::npos) {
+            result.emplace_back(str.substr(last, index - last));
+            last = index + sep_size(sep);
+            index = str.find(sep, last);
+        }
+        result.emplace_back(str.substr(last));
+        return result;
+    }
+
     std::vector<std::string> split(const std::string& str, char c = ',') {
         std::string line("");
         std::stringstream ss(str);
         std::vector<std::string> result;
         while (std::getline(ss, line, c)) {
-            result.push_back(line);
+            result.push_back(trim(line));
         }
         return result;
     }

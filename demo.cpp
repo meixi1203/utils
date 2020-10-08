@@ -10,6 +10,6 @@ int main(int argc,char** argv)
     line = std::move(csv.GetLine("1"));
     line = std::move(csv.GetLine({{"id","1"},{"age","20"}}));
     auto keyValue = line.GetKeyValue(csv.GetHeader());
-//    line.print(keyValue);
+    line.print(keyValue);
     return 0;
 }
