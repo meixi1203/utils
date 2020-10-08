@@ -9,11 +9,25 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 #include <unordered_map>
 
 namespace utils {
     const std::string sep = " \n\t\v\f\r";
-    std::string ltrim(const std::string& str) {
+
+    inline std::string ToUpper(const std::string &str){
+        std::string s(str);
+        std::transform(s.begin(), s.end(), s.begin(), toupper);
+        return s;
+    }
+
+    inline std::string ToLower(const std::string &str){
+        std::string s(str);
+        std::transform(s.begin(), s.end(), s.begin(), tolower);
+        return s;
+    }
+
+    inline std::string ltrim(const std::string& str) {
         if (str.empty() || !std::isspace(str.front())) {
             return str;
         }
@@ -21,7 +35,7 @@ namespace utils {
         return str.substr(start);
     }
 
-    std::string rtrim(const std::string& str) {
+    inline std::string rtrim(const std::string& str) {
         if (str.empty() || !std::isspace(str.back())) {
             return str;
         }
@@ -29,7 +43,7 @@ namespace utils {
         return str.substr(0, end + 1);
     }
 
-    std::string trim(const std::string& str) {
+    inline std::string trim(const std::string& str) {
         if (str.empty() ||
             (!std::isspace(str.front()) && !std::isspace(str.back()))) {
             return str;
@@ -39,11 +53,11 @@ namespace utils {
         return str.substr(start, end - start + 1);
     }
 
-    std::string::size_type sep_size(const std::string& s) {
+    inline std::string::size_type sep_size(const std::string& s) {
         return s.size();
     }
 
-    std::string::size_type sep_size(const char& c) {
+    inline std::string::size_type sep_size(const char& c) {
         return 1;
     }
 
@@ -69,6 +83,42 @@ namespace utils {
             result.push_back(trim(line));
         }
         return result;
+    }
+
+    std::vector<std::string> split(const std::string &token, size_t len) {
+        std::vector<std::string> result;
+        for (size_t index = 0; index < token.size(); index = index + len) {
+            std::string sub = std::move(token.substr(index, len));
+            result.push_back(sub);
+        }
+        return result;
+    }
+
+    inline std::vector<std::string> compact(const std::vector<std::string> &tokens){
+        std::vector<std::string> result;
+        for(size_t i=0; i<tokens.size(); ++i) {
+            if (!tokens[i].empty()) {
+                result.push_back(tokens[i]);
+            }
+        }
+
+        return result;
+    }
+
+    inline std::string join(const std::vector<std::string> &tokens, const std::string &delim) {
+        auto compacted = std::move(compact(tokens));
+        std::stringstream ss;
+        for(size_t i=0; i<tokens.size()-1; ++i) {
+            ss << tokens[i] << delim;
+        }
+        ss << compacted[tokens.size()-1];
+
+        return ss.str();
+    }
+
+    inline std::string join(const std::string &tokens, const std::string &delim, size_t len) {
+        auto array = std::move(split(tokens, len));
+        return join(array, delim);
     }
 }
 
