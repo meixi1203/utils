@@ -3,6 +3,10 @@
 int main(int argc,char** argv)
 {
     CSVParse csv("test.csv", {"id", "name"});
+    if (!csv.isReady()) {
+        return 0;
+    }
+
     std::string result("");
     auto line = csv[0];
     line.print();

@@ -186,6 +186,8 @@ public:
         }
     }
 
+    bool isReady() { return isReady_; }
+
     ~CSVParse() = default;
 
     bool parse(const std::string &file) {
