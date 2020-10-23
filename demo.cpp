@@ -3,7 +3,7 @@
 int main(int argc,char** argv)
 {
     CSVParse csv("test.csv", {"id", "name"});
-    if (!csv.isReady()) {
+    if (!csv) {
         return 0;
     }
 

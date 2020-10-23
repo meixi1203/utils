@@ -154,16 +154,9 @@ struct Line
         return std::string();
     }
 
-    void print(const std::unordered_map<std::string, std::string> &data) {
-        std::stringstream ss;
-        for (auto iter = data.begin(); iter != data.end(); iter++) {
-            ss << iter->first << ":" << iter->second << " ";
-        }
-        std::cout << ss.str() << std::endl;
-    }
     size_t fields() const { return array_.size(); }
 
-    void print() {
+    void print() const {
         std::stringstream ss;
         for (size_t i = 0; i < array_.size(); i++) {
             if (i != array_.size() - 1) {
@@ -186,7 +179,9 @@ public:
         }
     }
 
-    bool isReady() { return isReady_; }
+    bool operator!() {
+      return !isReady_;
+    }
 
     ~CSVParse() = default;
 
@@ -227,6 +222,10 @@ public:
     }
 
     Line GetLine(std::unordered_map<std::string, std::string> &&keys) {
+        if (keys.size() != key_.size()) {
+            return query(keys);
+        }
+
         std::vector<std::string> array(GetColumn());
         for (auto iter = keys.begin(); iter != keys.end(); iter++) {
             array[header2index_[iter->first]] = iter->second;
@@ -244,21 +243,7 @@ public:
             return context_[find->second];
         }
 
-        for (size_t i = 0; i < context_.size(); i++) {
-            auto line = context_[i];
-            size_t count = 0;
-            for (auto it = keys.begin(); it != keys.end(); it++) {
-                if (line[header2index_[it->first]] != it->second) {
-                    break;
-                }
-                count++;
-            }
-            if (count == keys.size()) {
-                return line;
-            }
-        }
-
-        return Line();
+        return query(keys);
     }
 
     size_t GetColumn() const {
@@ -302,6 +287,23 @@ private:
         }
         index_[key] = index;
         return true;
+    }
+
+    Line query(const std::unordered_map<std::string, std::string> &keys) {
+        for (size_t i = 0; i < context_.size(); i++) {
+            auto line = context_[i];
+            size_t count = 0;
+            for (auto it = keys.begin(); it != keys.end(); it++) {
+                if (line[header2index_[it->first]] != it->second) {
+                    break;
+                }
+                count++;
+            }
+            if (count == keys.size()) {
+                return line;
+            }
+        }
+        return Line();
     }
 
     bool isReady_ = false;
