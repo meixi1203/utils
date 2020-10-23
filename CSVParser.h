@@ -173,7 +173,8 @@ struct Line
 class CSVParse
 {
 public:
-    CSVParse(const std::string &file, std::vector<std::string> &&key) : key_(std::move(key)){
+    CSVParse(const std::string &file, std::vector<std::string> &&key) : key_(std::move(key)) {
+        reserve();
         if (parse(file)) {
             isReady_ = true;
         }
@@ -304,6 +305,14 @@ private:
             }
         }
         return Line();
+    }
+
+    bool reserve() {
+        context_.reserve(1000);
+        key_.reserve(100);
+        index_.reserve(1000);
+        header2index_.reserve(100);
+        return true;
     }
 
     bool isReady_ = false;
