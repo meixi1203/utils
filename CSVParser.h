@@ -282,6 +282,11 @@ private:
     }
 
     bool GenerateIndex(const Line &line, size_t index) {
+        if (key_.empty()) {
+            index_[line[0]] = index;
+            return true;
+        }
+
         std::string key("");
         for (size_t i = 0; i < key_.size(); i++) {
             key.append(line[header2index_[key_[i]]]);
