@@ -244,6 +244,23 @@ public:
         return query(keys);
     }
 
+    bool GetLine(size_t row, std::unordered_map<std::string, std::string> &values) {
+        if (row > GetRow()) {
+            return false;
+        }
+
+        auto line = std::move(GetLine(row));
+        if (line.fields() != header_.fields()) {
+            return false;
+        }
+
+        values.clear();
+        for (size_t index = 0; index < line.fields(); index++) {
+            values[header_[index]] = line[index];
+        }
+        return true;
+    }
+
     size_t GetColumn() const {
         return header_.fields();
     }
@@ -253,7 +270,7 @@ public:
     }
 
     std::string GetValue(int row, int column) {
-        auto line = GetLine(row);
+        auto line = std::move(GetLine(row));
         return line[column];
     }
 
