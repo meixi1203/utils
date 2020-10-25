@@ -196,17 +196,14 @@ public:
             return false;
         }
 
-        std::string s("");
-        getline(io, s);
-        ParseHeader(s);
-
-        size_t count = 0;
-        while (getline(io, s)) {
-            Line line(s);
-            context_.push_back(line);
-            GenerateIndex(line, count++);
+        if (!ParseHeader(io)) {
+            return false;
         }
-        io.close();
+
+        if (!ParseLine(io)) {
+            return false;
+        }
+
         return true;
     }
 
@@ -269,14 +266,26 @@ public:
     }
 
 private:
-    bool ParseHeader(const std::string &header) {
-        if (header.empty()) {
+    bool ParseHeader(std::ifstream &io) {
+        std::string tmp("");
+        if (!getline(io, tmp)) {
             return false;
         }
 
-        header_ = std::move(Line(header));
+        header_ = std::move(Line(tmp));
         for (size_t i = 0; i < header_.fields(); i++) {
             header2index_[header_[i]] = i;
+        }
+        return true;
+    }
+
+    bool ParseLine(std::ifstream &io) {
+        std::string tmp("");
+        size_t count = 0;
+        while (getline(io, tmp)) {
+            Line line(tmp);
+            context_.push_back(line);
+            GenerateIndex(line, count++);
         }
         return true;
     }
