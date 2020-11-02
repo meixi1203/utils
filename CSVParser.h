@@ -180,8 +180,8 @@ public:
         }
     }
 
-    bool operator!() {
-      return !isReady_;
+    operator bool() {
+        return isReady_;
     }
 
     ~CSVParse() = default;
