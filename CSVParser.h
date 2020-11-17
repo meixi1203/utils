@@ -124,17 +124,22 @@ namespace utils {
 
 struct Line
 {
-    Line(const std::string &line) {
+    Line(const std::unordered_map<std::string, size_t> &header2index, const std::string &line) {
         array_ = std::move(utils::split(line));
+        header2index_ = header2index;
     }
 
     Line(const Line &line) {
         this->array_ = line.array_;
+        this->header2index_ = line.header2index_;
     }
 
     Line(Line &&line) {
         this->array_ = std::move(line.array_);
         line.array_.clear();
+
+        this->header2index_ =  std::move(line.header2index_);
+        line.header2index_.clear();
     }
 
     Line() = default;
@@ -154,7 +159,22 @@ struct Line
         return std::string();
     }
 
-    size_t fields() const { return array_.size(); }
+    std::string operator[](std::string &&field) const {
+        auto find = header2index_.find(field);
+        if (find == header2index_.end()) {
+            return std::string();
+        }
+
+        auto index = find->second;
+        if (index < fields()) {
+            return array_[index];
+        }
+        return std::string();
+    }
+
+    size_t fields() const {
+        return array_.size();
+    }
 
     void print() const {
         std::stringstream ss;
@@ -167,7 +187,9 @@ struct Line
         }
         std::cout << ss.str() << std::endl;
     }
+
     std::vector<std::string> array_;
+    std::unordered_map<std::string, size_t> header2index_;
 };
 
 class CSVParse
@@ -212,7 +234,7 @@ public:
             return context_[row];
         }
 
-        return Line(std::string());
+        return Line();
     }
 
     Line operator[](size_t row) {
@@ -244,23 +266,6 @@ public:
         return query(keys);
     }
 
-    bool GetLine(size_t row, std::unordered_map<std::string, std::string> &values) {
-        if (row > GetRow()) {
-            return false;
-        }
-
-        auto line = std::move(GetLine(row));
-        if (line.fields() != header_.fields()) {
-            return false;
-        }
-
-        values.clear();
-        for (size_t index = 0; index < line.fields(); index++) {
-            values[header_[index]] = line[index];
-        }
-        return true;
-    }
-
     size_t GetColumn() const {
         return header_.fields();
     }
@@ -289,7 +294,7 @@ private:
             return false;
         }
 
-        header_ = std::move(Line(tmp));
+        header_ = std::move(Line(header2index_, tmp));
         for (size_t i = 0; i < header_.fields(); i++) {
             header2index_[header_[i]] = i;
         }
@@ -300,7 +305,7 @@ private:
         std::string tmp("");
         size_t count = 0;
         while (getline(io, tmp)) {
-            Line line(tmp);
+            Line line(header2index_, tmp);
             context_.push_back(line);
             GenerateIndex(line, count++);
         }
@@ -350,8 +355,8 @@ private:
     Line header_;
     std::vector<Line> context_;
     std::vector<std::string> key_;
-    std::unordered_map<std::string, int> index_;
-    std::unordered_map<std::string, int> header2index_;
+    std::unordered_map<std::string, size_t> index_;
+    std::unordered_map<std::string, size_t> header2index_;
 };
 
 #endif //CSVPARSER_H
