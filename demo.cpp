@@ -8,9 +8,10 @@ int main(int argc,char** argv)
     }
 
     auto line = std::move(csv[0]);
+    auto str = line.str();
+    std::cout << str << std::endl;
     std::string result = line["id"];
     result = line[1];
-    line.print();
     result = csv[1][2];
     line = std::move(csv.GetLine({{"id","1"},{"name","xxx"}}));
     return 0;

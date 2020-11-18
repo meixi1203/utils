@@ -127,19 +127,24 @@ struct Line
     Line(const std::unordered_map<std::string, size_t> &header2index, const std::string &line) {
         array_ = std::move(utils::split(line));
         header2index_ = header2index;
+        convert();
     }
 
     Line(const Line &line) {
         this->array_ = line.array_;
         this->header2index_ = line.header2index_;
+        this->index2header_ = line.index2header_;
     }
 
     Line(Line &&line) {
         this->array_ = std::move(line.array_);
         line.array_.clear();
 
-        this->header2index_ =  std::move(line.header2index_);
+        this->header2index_ = std::move(line.header2index_);
         line.header2index_.clear();
+
+        this->index2header_ = std::move(line.index2header_);
+        line.index2header_.clear();
     }
 
     Line() = default;
@@ -176,20 +181,32 @@ struct Line
         return array_.size();
     }
 
-    void print() const {
+    void convert() {
+        for (auto iter = header2index_.begin(); iter != header2index_.end(); iter++) {
+            index2header_[iter->second] = iter->first;
+        }
+    }
+
+    std::string str() const {
         std::stringstream ss;
         for (size_t i = 0; i < array_.size(); i++) {
+            auto find = index2header_.find(i);
+            if (find == index2header_.end()) {
+                continue;
+            }
+
             if (i != array_.size() - 1) {
-                ss << array_[i] << ",";
+                ss << find->second << ":" <<array_[i] << ",";
             } else {
-                ss << array_[i];
+                ss << find->second << ":" << array_[i];
             }
         }
-        std::cout << ss.str() << std::endl;
+        return ss.str();
     }
 
     std::vector<std::string> array_;
     std::unordered_map<std::string, size_t> header2index_;
+    std::unordered_map<size_t, std::string> index2header_;
 };
 
 class CSVParse
@@ -284,6 +301,7 @@ public:
         if (find != header2index_.end()) {
             return find->second;
         }
+
         return 0;
     }
 
