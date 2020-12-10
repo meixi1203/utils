@@ -29,7 +29,7 @@ public:
         return !!_row;
     }
 
-    std::string operator[](int n) {
+    std::string operator[](size_t n) {
         if (n > _field2index.size()) {
             return std::string();
         }
@@ -94,7 +94,6 @@ public:
 
     Row fetch_row() {
         MYSQL_ROW row = mysql_fetch_row(_res);
-        unsigned long* lengths = mysql_fetch_lengths(_res);
         return Row{row, _fields2index};
     }
 
@@ -116,7 +115,7 @@ public:
             return false;
         }
         auto num_fields = mysql_num_fields(_res);
-        for (int index = 0; index < num_fields; index++) {
+        for (size_t index = 0; index < num_fields; index++) {
             _fields2index[std::string(fields[index].name)] = index;
         }
         return true;
