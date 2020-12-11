@@ -246,7 +246,7 @@ public:
         return true;
     }
 
-    Line GetLine(size_t row) {
+    Line GetLine(size_t row) const {
         if (row < GetRow()) {
             return context_[row];
         }
@@ -254,18 +254,18 @@ public:
         return Line();
     }
 
-    Line operator[](size_t row) {
+    Line operator[](size_t row) const {
         return GetLine(row);
     }
 
-    Line GetLine(std::unordered_map<std::string, std::string> &&keys) {
+    Line GetLine(std::unordered_map<std::string, std::string> &&keys) const {
         if (keys.size() != key_.size()) {
             return query(keys);
         }
 
         std::vector<std::string> array(GetColumn());
         for (auto iter = keys.begin(); iter != keys.end(); iter++) {
-            array[header2index_[iter->first]] = iter->second;
+            array[GetIndex(iter->first)] = iter->second;
         }
 
         std::string key("");
@@ -291,12 +291,12 @@ public:
         return context_.size();
     }
 
-    std::string GetValue(int row, int column) {
+    std::string GetValue(int row, int column) const {
         auto line = std::move(GetLine(row));
         return line[column];
     }
 
-    size_t GetIndex(std::string &&field) const {
+    size_t GetIndex(const std::string &field) const {
         auto find = header2index_.find(field);
         if (find != header2index_.end()) {
             return find->second;
@@ -344,12 +344,12 @@ private:
         return true;
     }
 
-    Line query(const std::unordered_map<std::string, std::string> &keys) {
+    Line query(const std::unordered_map<std::string, std::string> &keys) const {
         for (size_t i = 0; i < context_.size(); i++) {
             auto line = context_[i];
             size_t count = 0;
             for (auto it = keys.begin(); it != keys.end(); it++) {
-                if (line[header2index_[it->first]] != it->second) {
+                if (line[GetIndex(it->first)] != it->second) {
                     break;
                 }
                 count++;
