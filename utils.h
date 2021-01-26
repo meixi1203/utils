@@ -116,6 +116,22 @@ std::vector<std::string> split(const std::string &token, size_t len) {
     return result;
 }
 
+std::vector<std::string> split(const std::string& text, const std::string& delims)
+{
+    std::vector<std::string> tokens;
+    std::size_t start = text.find_first_not_of(delims), end = 0;
+
+    while((end = text.find_first_of(delims, start)) != std::string::npos)
+    {
+        tokens.push_back(text.substr(start, end - start));
+        start = text.find_first_not_of(delims, end);
+    }
+    if(start != std::string::npos)
+        tokens.push_back(text.substr(start));
+
+    return tokens;
+}
+
 inline std::vector<std::string> compact(const std::vector<std::string> &tokens){
     std::vector<std::string> result;
     for(size_t i=0; i<tokens.size(); ++i) {
@@ -174,6 +190,14 @@ const std::string vformat(const char * const zcFormat, ...) {
     std::vsnprintf(zc, iLen, zcFormat, vaArgs);
     va_end(vaArgs);
     return std::string(zc, iLen);
+}
+
+template<typename T>
+inline std::string tostr(T value) {
+    std::ostringstream s;
+    s.precision(std::numeric_limits<T>::digits10);
+    s << value;
+    return s.str();
 }
 
 }
