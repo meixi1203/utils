@@ -1,7 +1,8 @@
-#include "CSVParser.h"
+#include "csv_parser.h"
 #include "builder.h"
 #include "mysql.h"
 #include "memory_pool.h"
+#include "finalizer.h"
 
 void test_csv_parse() {
     CSVParse csv("test.csv", {"id", "name"});
