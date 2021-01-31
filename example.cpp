@@ -118,7 +118,8 @@ void test_sql_builder() {
 
 struct A
 {
-    int a = 10;
+    A(int a) : data(a) {}
+    int data = 0;
 };
 
 void test_memory_pool() {
@@ -129,7 +130,7 @@ void test_memory_pool() {
     *p = 8;
     auto p1 = pool.find_node<double>();
     *p1 = 1.0;
-    A* a = new(pool.find_node<A>())A;
+    A* a = pool.find_node<A>(100);
 
     pool.free_node(p);
     pool.free_node(p1);

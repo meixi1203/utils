@@ -46,8 +46,8 @@ public:
         }
     }
 
-    template<typename T>
-    T* find_node() {
+    template <typename T, typename... Args>
+    T* find_node(Args&&... args) {
         size_t len = sizeof(T);
         if (len > kMaxBlockLen) {
             return nullptr;
@@ -60,9 +60,10 @@ public:
             }
             node = node->next;
         }
+
         if (node) {
             node->is_use = true;
-            return (T*)node->block;
+            return new(node->block)T(std::forward<Args>(args)...);
         }
         return nullptr;
     }
