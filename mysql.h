@@ -1,5 +1,5 @@
-#ifndef MYSQL_HPP
-#define MYSQL_HPP
+#ifndef MYSQL_H
+#define MYSQL_H
 
 #include <cstring>
 
@@ -235,4 +235,4 @@ private:
 };
 }
 
-#endif
+#endif // MYSQL_H

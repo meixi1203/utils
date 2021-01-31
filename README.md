@@ -92,3 +92,21 @@ A small C++11 library, for sql builder, support insert update delete select for 
                 .str();
     std::cout << str << std::endl;
 ```
+
+# Memory pool
+
+### demo
+```cpp
+        using namespace memory_pool;
+        MemoryPool pool;
+        pool.init();
+        auto p = pool.find_node<int>();
+        *p = 8;
+        auto p1 = pool.find_node<double>();
+        *p1 = 1.0;
+        A* a = new(pool.find_node<A>())A;
+
+        pool.free_node(p);
+        pool.free_node(p1);
+        pool.free_node(a);
+```
