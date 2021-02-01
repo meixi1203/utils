@@ -3,6 +3,7 @@
 #include "mysql.h"
 #include "memory_pool.h"
 #include "finalizer.h"
+#include "stream.h"
 
 void test_csv_parse() {
     CSVParse csv("test.csv", {"id", "name"});
@@ -138,8 +139,23 @@ void test_memory_pool() {
     pool.free_node(a);
 }
 
-int main(int argc,char** argv)
-{
+void test_stream() {
+    Handler handler;
+    int i = 0;
+    std::string command("hello world!");
+    while (i++ < 2) {
+        uint8_t count = command.size();
+        char buff[command.size() + 2];
+        memcpy(buff, &count, 1);
+        memcpy(buff+1, command.data(), command.size());
+        buff[count + 1] = '\0';
+        handler.stream.Add(count + 1, buff);
+    }
+    handler.ParseBuffers();
+}
+
+int main(int argc,char** argv) {
+    test_stream();
     test_csv_parse();
     test_mysql();
     test_sql_builder();
