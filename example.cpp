@@ -4,6 +4,7 @@
 #include "memory_pool.h"
 #include "finalizer.h"
 #include "stream.h"
+#include "version.h"
 
 void test_csv_parse() {
     CSVParse csv("test.csv", {"id", "name"});
@@ -155,6 +156,13 @@ void test_stream() {
 }
 
 int main(int argc,char** argv) {
+    if (argc == 2) {
+        if (strcmp(argv[1], "-v") == 0) {
+            std::cout <<get_version() << std::endl;
+            return 0;
+        }
+    }
+
     test_stream();
     test_csv_parse();
     test_mysql();
