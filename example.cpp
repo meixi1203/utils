@@ -5,6 +5,8 @@
 #include "finalizer.h"
 #include "stream.h"
 #include "version.h"
+#include "string_view.h"
+
 
 void test_csv_parse() {
     CSVParse csv("test.csv", {"id", "name"});
@@ -155,6 +157,14 @@ void test_stream() {
     handler.ParseBuffers();
 }
 
+void test_string_view() {
+    StringView sv("hello");
+    sv.remove_prefix(2);
+
+    auto str = sv.ToString();
+    std::cout << str << std::endl;
+}
+
 int main(int argc,char** argv) {
     if (argc == 2) {
         if (strcmp(argv[1], "-v") == 0) {
@@ -163,6 +173,7 @@ int main(int argc,char** argv) {
         }
     }
 
+    test_string_view();
     test_stream();
     test_csv_parse();
     test_mysql();
